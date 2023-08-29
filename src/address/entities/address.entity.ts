@@ -16,7 +16,7 @@ export class AddressEntity {
   @Column({ name: 'complement', nullable: true })
   complement: string;
 
-  @Column({ name: ',number', nullable: false })
+  @Column({ name: 'number', nullable: false })
   numberAddress: number;
 
   @Column({ name: 'cep', nullable: false })
