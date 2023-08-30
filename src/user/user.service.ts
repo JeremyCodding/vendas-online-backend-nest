@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/createUser.dto';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -65,6 +69,13 @@ export class UserService {
       createUserDto.password,
       saltOrRounds,
     );
+    const emailFound = await this.findUserByEmail(createUserDto.email).catch(
+      () => undefined,
+    );
+
+    if (emailFound) {
+      throw new BadRequestException('O email inserido já foi cadastrado');
+    }
 
     return this.userRepository.save({
       ...createUserDto,
