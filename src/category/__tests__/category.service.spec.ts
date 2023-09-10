@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CategoryEntity } from '../entities/category.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { categoryMock } from '../__mocks__/category.mock';
+import { createCategoryMock } from '../__mocks__/create-category.mock';
 
 describe('CategoryService', () => {
   let service: CategoryService;
@@ -17,6 +18,7 @@ describe('CategoryService', () => {
           provide: getRepositoryToken(CategoryEntity),
           useValue: {
             find: jest.fn().mockResolvedValue([categoryMock]),
+            findOne: jest.fn().mockResolvedValue(categoryMock),
             save: jest.fn().mockResolvedValue(categoryMock),
           },
         },
@@ -50,5 +52,37 @@ describe('CategoryService', () => {
     jest.spyOn(categoryRepository, 'find').mockRejectedValue(new Error());
 
     expect(service.findAllCategories()).rejects.toThrowError();
+  });
+
+  it('should return the category after saved', async () => {
+    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(undefined);
+    const savedCategory = await service.createCategory(createCategoryMock);
+
+    expect(savedCategory).toEqual(categoryMock);
+  });
+
+  it('should return error if the category is already saved', async () => {
+    expect(service.createCategory(createCategoryMock)).rejects.toThrowError();
+  });
+
+  it('should return error in exception', async () => {
+    jest.spyOn(categoryRepository, 'save').mockRejectedValue(new Error());
+    expect(service.createCategory(createCategoryMock)).rejects.toThrowError();
+  });
+
+  it('should return the category in find by name', async () => {
+    const foundCategory = await service.findCategoryByName(
+      createCategoryMock.name,
+    );
+
+    expect(foundCategory).toEqual(categoryMock);
+  });
+
+  it('should return error if category find by name is empty', async () => {
+    jest.spyOn(categoryRepository, 'findOne').mockResolvedValue(undefined);
+
+    expect(
+      service.findCategoryByName(createCategoryMock.name),
+    ).rejects.toThrowError();
   });
 });
