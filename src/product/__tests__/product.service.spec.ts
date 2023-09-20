@@ -97,4 +97,21 @@ describe('ProductService', () => {
 
     expect(deleted).toEqual(returnDeleteMock);
   });
+
+  it('should return product updated', async () => {
+    const product = await service.updateProduct(
+      createProductMock,
+      productMock.id,
+    );
+
+    expect(product).toEqual(productMock);
+  });
+
+  it('should return error when product not found by ID', async () => {
+    jest.spyOn(productRepository, 'findOne').mockResolvedValue(undefined);
+
+    expect(
+      service.updateProduct(createProductMock, productMock.id),
+    ).rejects.toThrowError();
+  });
 });
