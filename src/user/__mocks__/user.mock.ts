@@ -9,6 +9,6 @@ export const userEntityMock: UserEntity = {
   id: 234565,
   name: 'Jeremy Pereira',
   phone: '61999999999',
-  password: '$2b$10$ES5MacbUbWnPqiToJnNYneT1VqGlC4yhts6gcZKvQuA5bQhw4f.Xy',
+  password: '$2b$10$9oGIXmHn5//WHcigGxXfPuZHmlIlSeGPHT97TWC7nqxDLsdi2VtQa',
   typeUser: UserType.User,
 };
