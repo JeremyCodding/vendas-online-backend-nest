@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
+  Patch,
   Post,
   UsePipes,
   ValidationPipe,
@@ -14,6 +16,7 @@ import { CartService } from './cart.service';
 import { UserId } from 'src/decorators/user-id.decorator';
 import { ReturnCartDTO } from './dto/return-cart.dto';
 import { DeleteResult } from 'typeorm';
+import { UpdateCartDTO } from './dto/update-cart.dto';
 
 @Roles(UserType.User)
 @Controller('cart')
@@ -44,5 +47,26 @@ export class CartController {
   @Delete()
   async clearCart(@UserId() userId: number): Promise<DeleteResult> {
     return this.cartService.clearCart(userId);
+  }
+
+  @Roles(UserType.Admin, UserType.User)
+  @Delete('/product/:productId')
+  async deleteProductCart(
+    @Param('productId') productId: number,
+    @UserId() userId: number,
+  ): Promise<DeleteResult> {
+    return this.cartService.deleteProductCart(productId, userId);
+  }
+
+  @Roles(UserType.Admin, UserType.User)
+  @UsePipes(ValidationPipe)
+  @Patch()
+  async updateProductInCart(
+    @Body() updateCart: UpdateCartDTO,
+    @UserId() userId: number,
+  ): Promise<ReturnCartDTO> {
+    return new ReturnCartDTO(
+      await this.cartService.updateProductInCart(updateCart, userId),
+    );
   }
 }
