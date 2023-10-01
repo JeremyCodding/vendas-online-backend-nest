@@ -38,5 +38,5 @@ export class CartProductEntity {
 
   @ManyToOne(() => CartEntity, (cartEntity) => cartEntity.cartProduct)
   @JoinColumn({ name: 'cart_id', referencedColumnName: 'id' })
-  cart: CartEntity;
+  cart?: CartEntity;
 }

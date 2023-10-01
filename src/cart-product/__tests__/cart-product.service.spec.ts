@@ -7,6 +7,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { productMock } from '../../product/__mocks__/product.mock';
 import { returnDeleteMock } from '../../__mocks__/return-delete.mock';
 import { cartMock } from '../../cart/__mocks__/cart.mock';
+import { insertCartMock } from '../../cart/__mocks__/insert-cart.mock';
+import { cartProductMock } from '../__mocks__/product-cart.mock';
+import { NotFoundException } from '@nestjs/common';
 
 describe('CartProductService', () => {
   let service: CartProductService;
@@ -25,8 +28,8 @@ describe('CartProductService', () => {
         {
           provide: getRepositoryToken(CartProductEntity),
           useValue: {
-            findOne: '',
-            save: '',
+            findOne: jest.fn().mockResolvedValue(cartProductMock),
+            save: jest.fn().mockResolvedValue(cartProductMock),
             delete: jest.fn().mockResolvedValue(returnDeleteMock),
           },
         },
@@ -62,5 +65,39 @@ describe('CartProductService', () => {
     expect(
       service.deleteProductInCart(productMock.id, cartMock.id),
     ).rejects.toThrowError();
+  });
+
+  it('should return cart-product after create', async () => {
+    const productCart = await service.createProductInCart(
+      insertCartMock,
+      cartMock.id,
+    );
+
+    expect(productCart).toEqual(cartProductMock);
+  });
+
+  it('should return error in exception save product in cart', async () => {
+    jest.spyOn(cartProductRepository, 'save').mockRejectedValue(new Error());
+
+    expect(
+      service.createProductInCart(insertCartMock, cartMock.id),
+    ).rejects.toThrowError();
+  });
+
+  it('should return cart-product after verifyed it exists', async () => {
+    const productCart = await service.verifyProductInCart(
+      productMock.id,
+      cartMock.id,
+    );
+
+    expect(productCart).toEqual(cartProductMock);
+  });
+
+  it('should return error when product not found in cart', async () => {
+    jest.spyOn(cartProductRepository, 'findOne').mockResolvedValue(undefined);
+
+    expect(
+      service.verifyProductInCart(productMock.id, cartMock.id),
+    ).rejects.toThrowError(NotFoundException);
   });
 });
